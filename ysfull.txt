@@ -1,0 +1,1 @@
+ "start": "concurrently \"lite-server\" \"npm run dev --prefix src\"",

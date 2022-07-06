@@ -5,40 +5,136 @@ App = {
   account: "0x0",
 
   init: function () {
-    setTimeout(function () {
-      return App.initWeb3();
-    }, 1000);
+    return App.initWeb3();
+  },
+
+  isInstalled: async function () {
+    return typeof window.ethereum !== "undefined";
+  },
+
+  requestConnection: async function () {
+    try {
+      t = await ethereum.request({ method: "eth_requestAccounts" });
+      return true;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  },
+
+  requestNetworkChange: async function () {
+    try {
+      t = await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: `0x${Number(4).toString(16)}` }],
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  },
+
+  isRinkbeyNetwork: function () {
+    if (window.ethereum.networkVersion != 4) {
+      return false;
+    }
+    return true;
+  },
+
+  isLoggedIn: async function () {
+    web3 = await new Web3(web3.currentProvider);
+    var t = await promisify(web3.eth.getAccounts);
+    if (t.length < 1) {
+      return false;
+    } else {
+      return true;
+    }
   },
 
   initWeb3: async function () {
-    console.log(window.location.href);
-    if (typeof window.ethereum !== "undefined") {
+    var page1 = $("#page_1");
+    var page2 = $("#page_2");
+    _isInstalled = await App.isInstalled();
+    if (_isInstalled) {
+      $("#metamask-button-text").html("Login with MetaMask");
       App.web3Provider = web3.currentProvider;
       web3 = await new Web3(web3.currentProvider);
+      _isLoggedIn = await App.isLoggedIn();
+      console.log(_isLoggedIn);
+      if (!_isLoggedIn) {
+        page1.show();
+        page2.hide();
+        $("#metamaskbtn")
+          .unbind()
+          .click(async (e) => {
+            var res = await App.requestConnection();
+            if (res) {
+              App.init();
+            } else {
+              alert("Connection failed please try again");
+              return;
+            }
+          });
+        return;
+      }
+      _isRinkbey = App.isRinkbeyNetwork();
+      if (!_isRinkbey) {
+        page1.show();
+        page2.hide();
+        var res = await App.requestNetworkChange();
+        if (res) {
+          App.init();
+        } else {
+          page1.show();
+          page2.hide();
+          $("#metamaskbtn")
+            .unbind()
+            .click(async (e) => {
+              var res = await App.requestNetworkChange();
+              if (res) {
+                App.init();
+              } else {
+                alert("Pleasee change to rinkbey");
+                return;
+              }
+            });
+          alert("Pleasee change to rinkbey");
+          return;
+        }
+      }
+      return App.initContract();
       // try {
       //   await window.ethereum.request({
       //     method: "wallet_addEthereumChain",
       //     params: [
       //       {
-      //         chainName: "Polygon Mainnet",
-      //         chainId: "0x89",
+      //         chainName: "Rinkeby Test Network",
+      //         chainId: "0x4",
       //         nativeCurrency: {
-      //           name: "MATIC",
+      //           name: "Ethereum",
       //           decimals: 18,
-      //           symbol: "MATIC",
+      //           symbol: "RinkebyETH",
       //         },
-      //         rpcUrls: ["https://polygon-rpc.com/"],
+      //         rpcUrls: ["https://rinkeby.infura.io/v3/"],
       //       },
       //     ],
       //   });
+
       // } catch (err) {
       //   // This error code indicates that the chain has not been added to MetaMask
       //   console.log(err);
       // }
-      // ethereum
-      //   .request({ method: "eth_requestAccounts" })
-      //   .then((a, b) => console.log(a));
     } else {
+      $("#metamask-button-text").html("Install MetaMask");
+      $("#metamaskbtn")
+        .unbind()
+        .click(async (e) => {
+          window.location.href = "https://www.metamask.io/";
+          console.log("12312");
+        });
+
+      const onboarding = new MetaMaskOnboarding({ forwarderOrigin });
+      onboarding.startOnboarding();
     }
 
     // if (typeof web3 !== "undefined") {
@@ -52,7 +148,7 @@ App = {
     //   // );
     //   // web3 = new Web3(App.web3Provider);
     // }
-    return App.initContract();
+    // return App.initContract();
   },
 
   initContract: function () {
@@ -472,6 +568,15 @@ App = {
     //     console.warn(error);
     //   });
   },
+};
+
+promisify = (fun, params = []) => {
+  return new Promise((resolve, reject) => {
+    fun(...params, (err, data) => {
+      if (err !== null) reject(err);
+      else resolve(data);
+    });
+  });
 };
 
 $(function () {

@@ -1,6 +1,26 @@
-const fetch = require("node-fetch");
-const deployer = global.deployer;
-const oracleContract = global.contracts.ETHBBSEPriceFeedOracle;
+import fetch from "node-fetch";
+import path from "path";
+import { fileURLToPath } from "url";
+import Web3 from "web3";
+import ETHBBSEPriceFeedOracle from "../build/contracts/ETHBBSEPriceFeedOracle.json" assert { type: "json" };
+import dotenv from "dotenv";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: __dirname + "/../.env" });
+
+// Use the local Ganache node to connect to the blockchain
+
+const web3 = new Web3(
+  `wss://rinkeby.infura.io/ws/v3/${process.env.INFURAAPIKEY}`
+);
+const netId = await web3.eth.net.getId();
+const deployer = process.env.PUBLICKEY1;
+
+// Initialize the contract object
+const oracleContract = new web3.eth.Contract(
+  ETHBBSEPriceFeedOracle.abi, // Contract ABI
+  ETHBBSEPriceFeedOracle.networks[netId].address // Contract address
+);
 
 // Fetches the latest rate from http://rest.coinapi.io for BASE and QUOTE
 const getLatestPrice = async () => {
@@ -18,7 +38,6 @@ const getLatestPrice = async () => {
   });
 
   const data = await res.json();
-
   return data;
 };
 
@@ -26,12 +45,14 @@ const getLatestPrice = async () => {
 oracleContract?.events
   ?.GetNewRate({ fromBlock: 0 }, (err, event) => {
     if (err) {
+      console.log("sadasdas");
       console.log(err);
     }
   })
   .on("data", async () => {
-    const res = { rate: 18 }; //await getLatestPrice();
-    // Calls updateRate method on the oracle contract
+    console.log("asd");
+    const res = await getLatestPrice();
+    // // Calls updateRate method on the oracle contract
     await oracleContract.methods
       .updateRate(
         Math.round(res.rate) // Round float to an int (for simplicity, let's neglect decimal points)

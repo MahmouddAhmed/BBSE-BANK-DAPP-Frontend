@@ -4388,48 +4388,21 @@
     "version": "0.8.14+commit.80d49f37.Emscripten.clang"
   },
   "networks": {
+    "4": {
+      "events": {},
+      "links": {},
+      "address": "0x4DA524D67E084D6fB02cB4b043AAd9a6d4a64bb7",
+      "transactionHash": "0xa5c779e06868d78cb0f24c9049bcf239fe0681d7e195229d3ef32ed8763f0620"
+    },
     "5777": {
-      "events": {
-        "0x647239ced5071d7d8bd43b5303aeb954065dc53b9fdc26cf74bc4c175a994280": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "string",
-              "name": "priceFeed",
-              "type": "string"
-            }
-          ],
-          "name": "GetNewRate",
-          "type": "event"
-        },
-        "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0": {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "previousOwner",
-              "type": "address"
-            },
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "newOwner",
-              "type": "address"
-            }
-          ],
-          "name": "OwnershipTransferred",
-          "type": "event"
-        }
-      },
+      "events": {},
       "links": {},
       "address": "0xEDF42021C8F8268eEe9a5f884261cbD2B5E392b3",
       "transactionHash": "0x871588a058c317016417e60320632a67f190493dec27642209968d09d6be41f9"
     }
   },
   "schemaVersion": "3.4.7",
-  "updatedAt": "2022-07-05T04:11:32.943Z",
+  "updatedAt": "2022-07-05T23:04:22.450Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
